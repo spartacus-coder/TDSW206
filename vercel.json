@@ -12,10 +12,9 @@
       "dest": "app.py"
     }
   ],
-  "functions": [
-    {
-      "src": "app.py",
+  "functions": {
+    "app.py": {
       "handler": "app.app"
     }
-  ]
+  }
 }
