@@ -15,6 +15,9 @@ CORS(app)
 @app.route('/api', methods=['GET'])
 def get_marks():
     names = request.args.getlist('name')
+    if not names:
+        return jsonify({'error': 'No names provided'}), 400
+    
     marks = [student['marks'] for student in data if student['name'] in names]
     return jsonify({'marks': marks})
 
