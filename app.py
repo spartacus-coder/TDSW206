@@ -1,33 +1,33 @@
-import json
 from flask import Flask, request, jsonify
+import json
 
 app = Flask(__name__)
 
-# Load the JSON file
-try:
-    with open('q-vercel-python.json') as f:
-        data = json.load(f)
-except FileNotFoundError:
-    print("Error: JSON file not found")
-    data = []
+# Load the JSON data file
+with open('data.json') as f:
+    data = json.load(f)
 
 # Enable CORS
-from flask_cors import CORS
-CORS(app)
+@app.after_request
+def after_request(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    return response
 
 # Define the API endpoint
 @app.route('/api', methods=['GET'])
 def get_marks():
-    try:
-        names = request.args.getlist('name')
-        if not names:
-            return jsonify({'error': 'No names provided'}), 400
-        
-        marks = [student['marks'] for student in data if student['name'] in names]
-        return jsonify({'marks': marks})
-    except Exception as e:
-        print(f"Error: {str(e)}")
-        return jsonify({'error': 'Internal Server Error'}), 500
+    names = request.args.getlist('name')
+    marks = []
+    for name in names:
+        for student in data:
+            if student['Name'] == name:
+                marks.append(student['Marks'])
+                break
+        else:
+            marks.append(None)
+    return jsonify({'marks': marks})
 
 if __name__ == '__main__':
     app.run(debug=True)
