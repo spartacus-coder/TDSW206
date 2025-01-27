@@ -1,4 +1,3 @@
-# api/index.py
 import json
 from http.server import BaseHTTPRequestHandler
 import urllib.parse
