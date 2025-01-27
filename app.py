@@ -1,33 +1,32 @@
-from flask import Flask, request, jsonify
+# api/index.py
 import json
+from http.server import BaseHTTPRequestHandler
+import urllib.parse
 
-app = Flask(__name__)
+file_path = 'q-vercel-python.json'
+with open (file_path, 'r') as file:
+    data = json.load (file)
 
-# Load the JSON data file
-with open('q-vercel-python.json') as f:
-    data = json.load(f)
+marks = dict ()
+for i in range (len (data)):
+    marks[data[i]['name']] =  data[i]['marks']
 
-# Enable CORS
-@app.after_request
-def after_request(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'GET'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-    return response
+class handler(BaseHTTPRequestHandler):
+    def do_GET (self):
+        parsed_url = urllib.parse.urlparse(self.path)
+        query_params = urllib.parse.parse_qs(parsed_url.query)
+        names = query_params.get ('name', [])
+        
+        query_marks = list ()
+        for n in names:
+            query_marks.append (marks[n])
 
-# Define the API endpoint
-@app.route('/api', methods=['GET'])
-def get_marks():
-    names = request.args.getlist('name')
-    marks = []
-    for name in names:
-        for student in data:
-            if student['name'] == name:
-                marks.append(student['marks'])
-                break
-        else:
-            marks.append(None)
-    return jsonify({'marks': marks})
-
-if __name__ == '__main__':
-    app.run(debug=True)
+        self.send_response (200)
+        self.send_header ('Content-type', 'application/json')
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers ()
+        response = {
+            "marks": query_marks,
+        }
+        self.wfile.write (json.dumps (response).encode ('utf-8'))
+        return
