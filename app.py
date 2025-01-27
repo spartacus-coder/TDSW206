@@ -4,7 +4,7 @@ import json
 app = Flask(__name__)
 
 # Load the JSON data file
-with open('data.json') as f:
+with open('q-vercel-python.json') as f:
     data = json.load(f)
 
 # Enable CORS
@@ -22,8 +22,8 @@ def get_marks():
     marks = []
     for name in names:
         for student in data:
-            if student['Name'] == name:
-                marks.append(student['Marks'])
+            if student['name'] == name:
+                marks.append(student['marks'])
                 break
         else:
             marks.append(None)
